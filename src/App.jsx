@@ -328,7 +328,7 @@ function BottomNav({ tab, setTab }) {
     { id: "settings", label: "Settings", Icon: SettingsIcon },
   ];
   return (
-    <div style={{ borderTop: "1px solid #1e293b", background: "#0a0e1a" }} className="flex justify-around py-3">
+    <div style={{ borderTop: "1px solid var(--card)", background: "#0a0e1a" }} className="flex justify-around py-3">
       {items.map(({ id, label, Icon }) => {
         const active = tab === id;
         return (
@@ -336,7 +336,7 @@ function BottomNav({ tab, setTab }) {
             key={id}
             onClick={() => setTab(id)}
             className="flex flex-col items-center gap-1 px-4"
-            style={{ color: active ? "#818cf8" : "#64748b", background: "none", border: "none", cursor: "pointer" }}
+            style={{ color: active ? "#818cf8" : "var(--muted)", background: "none", border: "none", cursor: "pointer" }}
           >
             <Icon size={22} strokeWidth={2} />
             <span style={{ fontSize: 13 }}>{label}</span>
@@ -372,8 +372,8 @@ function FocusTab({ mode, setModeManually, secondsLeft, radius, circumference, d
             onChange={(e) => setLabel(e.target.value)}
             placeholder="What are you focusing on?"
             style={{
-              width: "100%", background: "#131a2a", border: "1px solid #1e293b", borderRadius: 14,
-              padding: "12px 16px", color: "#f1f5f9", fontSize: 15, outline: "none", boxSizing: "border-box",
+              width: "100%", background: "#131a2a", border: "1px solid var(--border)", borderRadius: 14,
+              padding: "12px 16px", color: "var(--text)", fontSize: 15, outline: "none", boxSizing: "border-box",
             }}
           />
           {recentLabels.length > 0 && (
@@ -438,10 +438,10 @@ function FocusTab({ mode, setModeManually, secondsLeft, radius, circumference, d
             transform="rotate(-90 145 145)"
             style={{ transition: "stroke-dashoffset 0.3s linear" }}
           />
-          <text x="145" y="122" textAnchor="middle" fill="#64748b" fontSize="15" letterSpacing="3" style={{ textTransform: "uppercase" }}>
+          <text x="145" y="122" textAnchor="middle" fill="var(--muted)" fontSize="15" letterSpacing="3" style={{ textTransform: "uppercase" }}>
             {mode === "focus" ? "Focus" : "Short Break"}
           </text>
-          <text x="145" y="166" textAnchor="middle" fill="#f1f5f9" fontSize="52" fontWeight="600">
+          <text x="145" y="166" textAnchor="middle" fill="var(--text)" fontSize="52" fontWeight="600">
             {pad(mins)}:{pad(secs)}
           </text>
           {mode === "focus" && label && (
@@ -464,9 +464,9 @@ function FocusTab({ mode, setModeManually, secondsLeft, radius, circumference, d
         </button>
       </div>
 
-      <div style={{ background: "#111726", border: "1px solid #1e293b", borderRadius: 20, padding: 22 }}>
+      <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 20, padding: 22 }}>
         <div className="flex justify-between items-center mb-3">
-          <span style={{ color: "#64748b", fontSize: 13, letterSpacing: 1.5, fontWeight: 600 }}>DAILY GOAL</span>
+          <span style={{ color: "#var(--muted)", fontSize: 13, letterSpacing: 1.5, fontWeight: 600 }}>DAILY GOAL</span>
           <span style={{ color: "#818cf8", fontSize: 15, fontWeight: 700 }}>{goalPct}%</span>
         </div>
         <div style={{ height: 8, background: "#1a2236", borderRadius: 999, overflow: "hidden" }}>
@@ -533,18 +533,18 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
 
       <div style={{ background: "#111726", border: "1px solid #1e293b", borderRadius: 20, padding: 22, marginBottom: 20 }}>
         <div className="flex justify-between mb-2">
-          <span style={{ color: "#64748b", fontSize: 13, letterSpacing: 1.5, fontWeight: 600 }}>ALL-TIME FOCUS</span>
-          <span style={{ color: "#64748b", fontSize: 13, letterSpacing: 1.5, fontWeight: 600 }}>LONGEST STREAK</span>
+          <span style={{ color: "var(--muted)", fontSize: 13, letterSpacing: 1.5, fontWeight: 600 }}>ALL-TIME FOCUS</span>
+          <span style={{ color: "var(--muted)", fontSize: 13, letterSpacing: 1.5, fontWeight: 600 }}>LONGEST STREAK</span>
         </div>
         <div className="flex justify-between items-end">
-          <span style={{ color: "#f1f5f9", fontSize: 30, fontWeight: 700 }}>{fmtHM(allTimeMinutes)}</span>
+          <span style={{ color: "var(--text)", fontSize: 30, fontWeight: 700 }}>{fmtHM(allTimeMinutes)}</span>
           <span style={{ color: "#818cf8", fontSize: 18, fontWeight: 600 }}>{longestStreak} day{longestStreak === 1 ? "" : "s"}</span>
         </div>
       </div>
 
-      <div style={{ background: "#111726", border: "1px solid #1e293b", borderRadius: 20, padding: 22, marginBottom: 20 }}>
+      <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 20, padding: 22, marginBottom: 20 }}>
         <div className="flex justify-between items-center mb-4">
-          <h3 style={{ color: "#f1f5f9", fontSize: 20, fontWeight: 700, margin: 0 }}>{view === "week" ? "This Week" : "This Month"}</h3>
+          <h3 style={{ color: "#var(--text)", fontSize: 20, fontWeight: 700, margin: 0 }}>{view === "week" ? "This Week" : "This Month"}</h3>
           <div className="flex gap-1" style={{ background: "#0a0e1a", borderRadius: 999, padding: 3 }}>
             {["week", "month"].map((v) => (
               <button
@@ -553,7 +553,7 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
                 style={{
                   border: "none", borderRadius: 999, padding: "5px 14px", fontSize: 13, fontWeight: 600, cursor: "pointer",
                   background: view === v ? "#6366f1" : "transparent",
-                  color: view === v ? "#fff" : "#64748b",
+                  color: view === v ? "#fff" : "var(--muted)",
                 }}
               >
                 {v === "week" ? "Week" : "Month"}
@@ -575,7 +575,7 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
                     borderRadius: 6,
                   }}
                 />
-                <span style={{ color: d.isToday ? "#818cf8" : "#64748b", fontSize: 13, marginTop: 8 }}>{d.label}</span>
+                <span style={{ color: d.isToday ? "#818cf8" : "var(--muted)", fontSize: 13, marginTop: 8 }}>{d.label}</span>
               </div>
             ))}
           </div>
@@ -583,12 +583,12 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
           <div>
             <div className="flex justify-between mb-4">
               <div>
-                <div style={{ color: "#f1f5f9", fontSize: 24, fontWeight: 700 }}>{fmtHM(monthMinutes)}</div>
-                <div style={{ color: "#64748b", fontSize: 13 }}>this month</div>
+                <div style={{ color: "var(--text)", fontSize: 24, fontWeight: 700 }}>{fmtHM(monthMinutes)}</div>
+                <div style={{ color: "var(--muted)", fontSize: 13 }}>this month</div>
               </div>
               <div style={{ textAlign: "right" }}>
-                <div style={{ color: "#f1f5f9", fontSize: 24, fontWeight: 700 }}>{monthDaysActive}/{daysInMonth}</div>
-                <div style={{ color: "#64748b", fontSize: 13 }}>active days</div>
+                <div style={{ color: "var(--text)", fontSize: 24, fontWeight: 700 }}>{monthDaysActive}/{daysInMonth}</div>
+                <div style={{ color: "var(--muted)", fontSize: 13 }}>active days</div>
               </div>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6 }}>
@@ -604,7 +604,7 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
                       aspectRatio: "1", borderRadius: 6, background: bg,
                       border: isToday ? "1.5px solid #818cf8" : "1px solid transparent",
                       display: "flex", alignItems: "center", justifyContent: "center",
-                      color: mins > 0 ? "#f1f5f9" : "#475569", fontSize: 10,
+                      color: mins > 0 ? "#var(--text)" : "#475569", fontSize: 10,
                     }}
                   >
                     {day}
@@ -616,8 +616,8 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
         )}
       </div>
 
-      <div style={{ background: "#111726", border: "1px solid #1e293b", borderRadius: 20, padding: 22, marginBottom: 20 }}>
-        <h3 style={{ color: "#f1f5f9", fontSize: 20, fontWeight: 700, margin: "0 0 14px" }}>Recent Sessions</h3>
+      <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 20, padding: 22, marginBottom: 20 }}>
+        <h3 style={{ color: "var(--text)", fontSize: 20, fontWeight: 700, margin: "0 0 14px" }}>Recent Sessions</h3>
         {sessions.length === 0 && <p style={{ color: "var(--muted)", fontSize: 14 }}>No sessions yet, finish a focus timer to see it here.</p>}
         {sessions.slice(0, 8).map((s) => (
           <div key={s.id} className="flex items-center justify-between" style={{ padding: "10px 0", borderTop: "1px solid #1a2236" }}>
@@ -627,7 +627,7 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
                 <div style={{ color: "#f1f5f9", fontSize: 16, fontWeight: 600 }}>
                   {fmtHM(s.minutes)}{s.label ? <span style={{ color: "#94a3b8", fontWeight: 400 }}> Â· {s.label}</span> : null}
                 </div>
-                <div style={{ color: "#64748b", fontSize: 13 }}>
+                <div style={{ color: "var(--muted)", fontSize: 13 }}>
                   {new Date(s.completedAt).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
                 </div>
               </div>
@@ -637,7 +637,7 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
         ))}
       </div>
 
-      <div style={{ background: "#111726", border: "1px solid #1e293b", borderRadius: 20, padding: 22 }}>
+      <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 20, padding: 22 }}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <ListChecks size={20} color="#818cf8" />
@@ -658,8 +658,8 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
             }}
             placeholder="Add a taskâ¦"
             style={{
-              flex: 1, background: "#0a0e1a", border: "1px solid #1e293b", borderRadius: 12,
-              padding: "10px 14px", color: "#f1f5f9", fontSize: 15, outline: "none", boxSizing: "border-box",
+              flex: 1, background: "#0a0e1a", border: "1px solid var(--border)", borderRadius: 12,
+              padding: "10px 14px", color: "var(--text)", fontSize: 15, outline: "none", boxSizing: "border-box",
             }}
           />
           <button
@@ -686,7 +686,7 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
               </div>
               <span
                 style={{
-                  color: t.done ? "#64748b" : "#f1f5f9", fontSize: 15,
+                  color: t.done ? "var(--muted)" : "var(--text)", fontSize: 15,
                   textDecoration: t.done ? "line-through" : "none",
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", cursor: "pointer",
                 }}
@@ -695,7 +695,7 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
               </span>
             </div>
             <button onClick={() => deleteTodo(t.id)} style={{ background: "none", border: "none", cursor: "pointer", flexShrink: 0, padding: 4 }}>
-              <Trash2 size={16} color="#64748b" />
+              <Trash2 size={16} color="var(--muted)" />
             </button>
           </div>
         ))}
@@ -706,10 +706,10 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
 
 function StatCard({ icon, value, label }) {
   return (
-    <div style={{ flex: 1, background: "#111726", border: "1px solid #1e293b", borderRadius: 18, padding: "18px 12px", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+    <div style={{ flex: 1, background: "var(--card)", border: "1px solid var(--border)", borderRadius: 18, padding: "18px 12px", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
       {icon}
-      <span style={{ color: "#f1f5f9", fontSize: 24, fontWeight: 700 }}>{value}</span>
-      <span style={{ color: "#64748b", fontSize: 13 }}>{label}</span>
+      <span style={{ color: "var(--text)", fontSize: 24, fontWeight: 700 }}>{value}</span>
+      <span style={{ color: "var(--muted)", fontSize: 13 }}>{label}</span>
     </div>
   );
 }
@@ -838,8 +838,8 @@ function SettingsTab({ settings, updateSetting, theme, setTheme }) {
 
 function SettingsGroup({ title, children }) {
   return (
-    <div style={{ background: "#111726", border: "1px solid #1e293b", borderRadius: 20, padding: "20px 22px", marginBottom: 20 }}>
-      <div style={{ color: "#64748b", fontSize: 13, letterSpacing: 1.5, fontWeight: 600, marginBottom: 14 }}>{title}</div>
+    <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 20, padding: "20px 22px", marginBottom: 20 }}>
+      <div style={{ color: "var(--muted)", fontSize: 13, letterSpacing: 1.5, fontWeight: 600, marginBottom: 14 }}>{title}</div>
       {children}
     </div>
   );
