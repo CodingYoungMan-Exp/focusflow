@@ -9,3 +9,21 @@ Added to-do lists and view progress to be able to show the current week and the 
 
 Features decided to add: 
 Theme Engine
+Animated Backgrounds
+Focus Music
+
+#Version 1.0.2-a
+Added the Theme Engine!
+9 themes, featuring:
+  🌌 Midnight
+  🌿 Forest
+  🌊 Ocean
+  🌅 Sunset
+  🌸 Sakura
+  ☕ Coffee
+  🚀 Cyberpunk
+  ❄️ Frost
+  🌙 AMOLED
+
+#Version 1.0.2-b
+(In progress)
