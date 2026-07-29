@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Play, Pause, RotateCcw, SkipForward, Timer, BarChart3, Settings as SettingsIcon, Zap, Minus, Plus, Check } from "lucide-react";
+import { Play, Pause, RotateCcw, SkipForward, Timer, BarChart3, Settings as SettingsIcon, Zap, Minus, Plus, Check, Trash2, ListChecks } from "lucide-react";
 
 const DEFAULTS = { focusMin: 60, breakMin: 15, dailyGoalMin: 180 };
 const SETTINGS_KEY = "focusflow:settings";
 const SESSIONS_KEY = "focusflow:sessions";
+const TODOS_KEY = "focusflow:todos";
 
 function pad(n) {
   return String(n).padStart(2, "0");
@@ -16,14 +17,34 @@ function fmtHM(totalMin) {
   return `${h}h ${m}m`;
 }
 
-function dayKey(d) {
-  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-}
-
 function startOfDay(d) {
   const nd = new Date(d);
   nd.setHours(0, 0, 0, 0);
   return nd;
+}
+
+const DAY_MS = 86400000;
+
+function computeStreaks(sessions) {
+  const daySet = new Set(sessions.map((s) => startOfDay(new Date(s.completedAt)).getTime()));
+  let cursor = startOfDay(new Date()).getTime();
+  if (!daySet.has(cursor)) cursor -= DAY_MS; // grace: don't break streak just because today has no session yet
+  let current = 0;
+  while (daySet.has(cursor)) {
+    current += 1;
+    cursor -= DAY_MS;
+  }
+  const sortedDays = Array.from(daySet).sort((a, b) => a - b);
+  let longest = 0;
+  let run = 0;
+  let prev = null;
+  for (const day of sortedDays) {
+    if (prev !== null && day - prev === DAY_MS) run += 1;
+    else run = 1;
+    longest = Math.max(longest, run);
+    prev = day;
+  }
+  return { current, longest };
 }
 
 export default function FocusFlow() {
@@ -31,35 +52,46 @@ export default function FocusFlow() {
   const [mode, setMode] = useState("focus");
   const [settings, setSettings] = useState(DEFAULTS);
   const [sessions, setSessions] = useState([]);
+  const [todos, setTodos] = useState([]);
   const [secondsLeft, setSecondsLeft] = useState(DEFAULTS.focusMin * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [label, setLabel] = useState("");
   const intervalRef = useRef(null);
-  const startedAtRef = useRef(null);
 
   useEffect(() => {
-    let loadedSettings = DEFAULTS;
-    let loadedSessions = [];
-    try {
-      const s = localStorage.getItem(SETTINGS_KEY);
-      if (s) loadedSettings = { ...DEFAULTS, ...JSON.parse(s) };
-    } catch (e) {}
-    try {
-      const s = localStorage.getItem(SESSIONS_KEY);
-      if (s) loadedSessions = JSON.parse(s);
-    } catch (e) {}
-    setSettings(loadedSettings);
-    setSessions(loadedSessions);
-    setSecondsLeft(loadedSettings.focusMin * 60);
-    setLoaded(true);
+    (async () => {
+      let loadedSettings = DEFAULTS;
+      let loadedSessions = [];
+      let loadedTodos = [];
+      try {
+        const s = await window.storage.get(SETTINGS_KEY);
+        if (s?.value) loadedSettings = { ...DEFAULTS, ...JSON.parse(s.value) };
+      } catch (e) {}
+      try {
+        const s = await window.storage.get(SESSIONS_KEY);
+        if (s?.value) loadedSessions = JSON.parse(s.value);
+      } catch (e) {}
+      try {
+        const t = await window.storage.get(TODOS_KEY);
+        if (t?.value) loadedTodos = JSON.parse(t.value);
+      } catch (e) {}
+      setSettings(loadedSettings);
+      setSessions(loadedSessions);
+      setTodos(loadedTodos);
+      setSecondsLeft(loadedSettings.focusMin * 60);
+      setLoaded(true);
+    })();
   }, []);
 
-  const persistSettings = useCallback((next) => {
-    try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(next)); } catch (e) {}
+  const persistSettings = useCallback(async (next) => {
+    try { await window.storage.set(SETTINGS_KEY, JSON.stringify(next)); } catch (e) {}
   }, []);
-
-  const persistSessions = useCallback((next) => {
-    try { localStorage.setItem(SESSIONS_KEY, JSON.stringify(next)); } catch (e) {}
+  const persistSessions = useCallback(async (next) => {
+    try { await window.storage.set(SESSIONS_KEY, JSON.stringify(next)); } catch (e) {}
+  }, []);
+  const persistTodos = useCallback(async (next) => {
+    try { await window.storage.set(TODOS_KEY, JSON.stringify(next)); } catch (e) {}
   }, []);
 
   useEffect(() => {
@@ -93,19 +125,20 @@ export default function FocusFlow() {
         minutes: settings.focusMin,
         completedAt: Date.now(),
         completed: true,
+        label: label.trim() || null,
       };
       setSessions((prev) => {
         const next = [entry, ...prev];
         persistSessions(next);
         return next;
       });
-      switchMode("break", true);
+      switchMode("break");
     } else {
-      switchMode("focus", true);
+      switchMode("focus");
     }
   }
 
-  function switchMode(next, autoStarted) {
+  function switchMode(next) {
     setMode(next);
     setIsRunning(false);
     setSecondsLeft(totalSecondsFor(next));
@@ -124,7 +157,7 @@ export default function FocusFlow() {
     setIsRunning(false);
     if (mode === "focus" && secondsLeft < totalSecondsFor("focus")) {
       const minutesDone = Math.max(1, Math.round((totalSecondsFor("focus") - secondsLeft) / 60));
-      const entry = { id: Date.now(), minutes: minutesDone, completedAt: Date.now(), completed: true };
+      const entry = { id: Date.now(), minutes: minutesDone, completedAt: Date.now(), completed: true, label: label.trim() || null };
       setSessions((prev) => {
         const next = [entry, ...prev];
         persistSessions(next);
@@ -146,33 +179,41 @@ export default function FocusFlow() {
     });
   }
 
+  function addTodo(text) {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    const entry = { id: Date.now(), text: trimmed, done: false };
+    setTodos((prev) => {
+      const next = [entry, ...prev];
+      persistTodos(next);
+      return next;
+    });
+  }
+  function toggleTodo(id) {
+    setTodos((prev) => {
+      const next = prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t));
+      persistTodos(next);
+      return next;
+    });
+  }
+  function deleteTodo(id) {
+    setTodos((prev) => {
+      const next = prev.filter((t) => t.id !== id);
+      persistTodos(next);
+      return next;
+    });
+  }
+
   const today = startOfDay(new Date());
   const todaySessions = sessions.filter((s) => startOfDay(new Date(s.completedAt)).getTime() === today.getTime());
   const todayMinutes = todaySessions.reduce((a, s) => a + s.minutes, 0);
   const allTimeMinutes = sessions.reduce((a, s) => a + s.minutes, 0);
   const goalPct = Math.min(100, Math.round((todayMinutes / Math.max(1, settings.dailyGoalMin)) * 100));
+  const { current: streak, longest: longestStreak } = computeStreaks(sessions);
 
-  let streak = 0;
-  {
-    const daySet = new Set(sessions.map((s) => dayKey(new Date(s.completedAt))));
-    let cursor = new Date();
-    while (daySet.has(dayKey(cursor))) {
-      streak += 1;
-      cursor.setDate(cursor.getDate() - 1);
-    }
-  }
-
-  const last7 = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const key = dayKey(d);
-    const mins = sessions
-      .filter((s) => dayKey(new Date(s.completedAt)) === key)
-      .reduce((a, s) => a + s.minutes, 0);
-    last7.push({ label: d.toLocaleDateString(undefined, { weekday: "short" }), mins, isToday: i === 0 });
-  }
-  const maxBar = Math.max(60, ...last7.map((d) => d.mins));
+  const recentLabels = Array.from(
+    new Set(sessions.filter((s) => s.label).map((s) => s.label))
+  ).slice(0, 5);
 
   const total = totalSecondsFor(mode);
   const progress = total > 0 ? (total - secondsLeft) / total : 0;
@@ -184,7 +225,7 @@ export default function FocusFlow() {
   if (!loaded) {
     return (
       <div style={{ background: "#0a0e1a", minHeight: "100vh" }} className="flex items-center justify-center">
-        <div style={{ color: "#64748b" }}>Loading…</div>
+        <div style={{ color: "#64748b" }}>Loadingâ¦</div>
       </div>
     );
   }
@@ -210,6 +251,9 @@ export default function FocusFlow() {
               goalPct={goalPct}
               todayMinutes={todayMinutes}
               dailyGoalMin={settings.dailyGoalMin}
+              label={label}
+              setLabel={setLabel}
+              recentLabels={recentLabels}
             />
           )}
           {tab === "stats" && (
@@ -217,11 +261,14 @@ export default function FocusFlow() {
               todayMinutes={todayMinutes}
               sessionCount={todaySessions.length}
               streak={streak}
+              longestStreak={longestStreak}
               allTimeMinutes={allTimeMinutes}
               dailyGoalMin={settings.dailyGoalMin}
-              last7={last7}
-              maxBar={maxBar}
-              sessions={sessions.slice(0, 8)}
+              sessions={sessions}
+              todos={todos}
+              addTodo={addTodo}
+              toggleTodo={toggleTodo}
+              deleteTodo={deleteTodo}
             />
           )}
           {tab === "settings" && (
@@ -261,7 +308,7 @@ function BottomNav({ tab, setTab }) {
   );
 }
 
-function FocusTab({ mode, setModeManually, secondsLeft, radius, circumference, dashOffset, gradId, isRunning, onPlayPause, onReset, onSkip, streak, goalPct, todayMinutes, dailyGoalMin }) {
+function FocusTab({ mode, setModeManually, secondsLeft, radius, circumference, dashOffset, gradId, isRunning, onPlayPause, onReset, onSkip, streak, goalPct, todayMinutes, dailyGoalMin, label, setLabel, recentLabels }) {
   const mins = Math.floor(secondsLeft / 60);
   const secs = secondsLeft % 60;
   const accent = mode === "focus" ? "#818cf8" : "#22d3ee";
@@ -279,7 +326,37 @@ function FocusTab({ mode, setModeManually, secondsLeft, radius, circumference, d
         </div>
       </div>
 
-      <div className="flex gap-3 mt-6">
+      {mode === "focus" && (
+        <div className="mt-5">
+          <input
+            value={label}
+            onChange={(e) => setLabel(e.target.value)}
+            placeholder="What are you focusing on?"
+            style={{
+              width: "100%", background: "#131a2a", border: "1px solid #1e293b", borderRadius: 14,
+              padding: "12px 16px", color: "#f1f5f9", fontSize: 15, outline: "none", boxSizing: "border-box",
+            }}
+          />
+          {recentLabels.length > 0 && (
+            <div className="flex gap-2 flex-wrap mt-2">
+              {recentLabels.map((l) => (
+                <button
+                  key={l}
+                  onClick={() => setLabel(l)}
+                  style={{
+                    background: "#131a2a", border: "1px solid #1e293b", borderRadius: 999,
+                    padding: "6px 12px", color: "#94a3b8", fontSize: 13, cursor: "pointer",
+                  }}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="flex gap-3 mt-5">
         <button
           onClick={() => setModeManually("focus")}
           style={{
@@ -302,7 +379,7 @@ function FocusTab({ mode, setModeManually, secondsLeft, radius, circumference, d
         </button>
       </div>
 
-      <div className="flex justify-center my-10">
+      <div className="flex justify-center my-8">
         <svg width="290" height="290" viewBox="0 0 290 290">
           <defs>
             <linearGradient id="focusGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -322,12 +399,17 @@ function FocusTab({ mode, setModeManually, secondsLeft, radius, circumference, d
             transform="rotate(-90 145 145)"
             style={{ transition: "stroke-dashoffset 0.3s linear" }}
           />
-          <text x="145" y="128" textAnchor="middle" fill="#64748b" fontSize="15" letterSpacing="3" style={{ textTransform: "uppercase" }}>
+          <text x="145" y="122" textAnchor="middle" fill="#64748b" fontSize="15" letterSpacing="3" style={{ textTransform: "uppercase" }}>
             {mode === "focus" ? "Focus" : "Short Break"}
           </text>
-          <text x="145" y="172" textAnchor="middle" fill="#f1f5f9" fontSize="52" fontWeight="600">
+          <text x="145" y="166" textAnchor="middle" fill="#f1f5f9" fontSize="52" fontWeight="600">
             {pad(mins)}:{pad(secs)}
           </text>
+          {mode === "focus" && label && (
+            <text x="145" y="196" textAnchor="middle" fill="#818cf8" fontSize="14">
+              {label.length > 24 ? label.slice(0, 24) + "â¦" : label}
+            </text>
+          )}
         </svg>
       </div>
 
@@ -366,7 +448,40 @@ function circleBtnStyle(bg, size = 58) {
   };
 }
 
-function StatsTab({ todayMinutes, sessionCount, streak, allTimeMinutes, dailyGoalMin, last7, maxBar, sessions }) {
+function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMinutes, dailyGoalMin, sessions, todos, addTodo, toggleTodo, deleteTodo }) {
+  const [view, setView] = useState("week");
+  const [taskInput, setTaskInput] = useState("");
+
+  const last7 = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = startOfDay(d).getTime();
+    const mins = sessions
+      .filter((s) => startOfDay(new Date(s.completedAt)).getTime() === key)
+      .reduce((a, s) => a + s.minutes, 0);
+    last7.push({ label: d.toLocaleDateString(undefined, { weekday: "short" }), mins, isToday: i === 0 });
+  }
+  const maxBar = Math.max(60, ...last7.map((d) => d.mins));
+
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const monthSessions = sessions.filter((s) => {
+    const d = new Date(s.completedAt);
+    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+  });
+  const monthMinutes = monthSessions.reduce((a, s) => a + s.minutes, 0);
+  const monthDaysActive = new Set(monthSessions.map((s) => startOfDay(new Date(s.completedAt)).getTime())).size;
+  const dayMinsMap = {};
+  monthSessions.forEach((s) => {
+    const day = new Date(s.completedAt).getDate();
+    dayMinsMap[day] = (dayMinsMap[day] || 0) + s.minutes;
+  });
+  const monthCells = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+
+  const pendingCount = todos.filter((t) => !t.done).length;
+
   return (
     <div>
       <h1 style={{ color: "#f1f5f9", fontSize: 34, fontWeight: 700, margin: "0 0 20px" }}>Stats</h1>
@@ -380,49 +495,169 @@ function StatsTab({ todayMinutes, sessionCount, streak, allTimeMinutes, dailyGoa
       <div style={{ background: "#111726", border: "1px solid #1e293b", borderRadius: 20, padding: 22, marginBottom: 20 }}>
         <div className="flex justify-between mb-2">
           <span style={{ color: "#64748b", fontSize: 13, letterSpacing: 1.5, fontWeight: 600 }}>ALL-TIME FOCUS</span>
-          <span style={{ color: "#64748b", fontSize: 13, letterSpacing: 1.5, fontWeight: 600 }}>GOAL</span>
+          <span style={{ color: "#64748b", fontSize: 13, letterSpacing: 1.5, fontWeight: 600 }}>LONGEST STREAK</span>
         </div>
         <div className="flex justify-between items-end">
           <span style={{ color: "#f1f5f9", fontSize: 30, fontWeight: 700 }}>{fmtHM(allTimeMinutes)}</span>
-          <span style={{ color: "#818cf8", fontSize: 18, fontWeight: 600 }}>{dailyGoalMin}m/day</span>
+          <span style={{ color: "#818cf8", fontSize: 18, fontWeight: 600 }}>{longestStreak} day{longestStreak === 1 ? "" : "s"}</span>
         </div>
       </div>
 
       <div style={{ background: "#111726", border: "1px solid #1e293b", borderRadius: 20, padding: 22, marginBottom: 20 }}>
-        <h3 style={{ color: "#f1f5f9", fontSize: 20, fontWeight: 700, margin: "0 0 18px" }}>This Week</h3>
-        <div className="flex items-end justify-between" style={{ height: 130 }}>
-          {last7.map((d, i) => (
-            <div key={i} className="flex flex-col items-center" style={{ flex: 1 }}>
-              {d.isToday && d.mins > 0 && <span style={{ color: "#94a3b8", fontSize: 12, marginBottom: 4 }}>{d.mins}m</span>}
-              <div
+        <div className="flex justify-between items-center mb-4">
+          <h3 style={{ color: "#f1f5f9", fontSize: 20, fontWeight: 700, margin: 0 }}>{view === "week" ? "This Week" : "This Month"}</h3>
+          <div className="flex gap-1" style={{ background: "#0a0e1a", borderRadius: 999, padding: 3 }}>
+            {["week", "month"].map((v) => (
+              <button
+                key={v}
+                onClick={() => setView(v)}
                 style={{
-                  width: "70%", maxWidth: 34,
-                  height: Math.max(6, (d.mins / maxBar) * 100),
-                  background: d.isToday ? "linear-gradient(180deg,#8b7cf6,#6366f1)" : "#1a2236",
-                  borderRadius: 6,
+                  border: "none", borderRadius: 999, padding: "5px 14px", fontSize: 13, fontWeight: 600, cursor: "pointer",
+                  background: view === v ? "#6366f1" : "transparent",
+                  color: view === v ? "#fff" : "#64748b",
                 }}
-              />
-              <span style={{ color: d.isToday ? "#818cf8" : "#64748b", fontSize: 13, marginTop: 8 }}>{d.label}</span>
-            </div>
-          ))}
+              >
+                {v === "week" ? "Week" : "Month"}
+              </button>
+            ))}
+          </div>
         </div>
+
+        {view === "week" ? (
+          <div className="flex items-end justify-between" style={{ height: 130 }}>
+            {last7.map((d, i) => (
+              <div key={i} className="flex flex-col items-center" style={{ flex: 1 }}>
+                {d.isToday && d.mins > 0 && <span style={{ color: "#94a3b8", fontSize: 12, marginBottom: 4 }}>{d.mins}m</span>}
+                <div
+                  style={{
+                    width: "70%", maxWidth: 34,
+                    height: Math.max(6, (d.mins / maxBar) * 100),
+                    background: d.isToday ? "linear-gradient(180deg,#8b7cf6,#6366f1)" : "#1a2236",
+                    borderRadius: 6,
+                  }}
+                />
+                <span style={{ color: d.isToday ? "#818cf8" : "#64748b", fontSize: 13, marginTop: 8 }}>{d.label}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div>
+            <div className="flex justify-between mb-4">
+              <div>
+                <div style={{ color: "#f1f5f9", fontSize: 24, fontWeight: 700 }}>{fmtHM(monthMinutes)}</div>
+                <div style={{ color: "#64748b", fontSize: 13 }}>this month</div>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ color: "#f1f5f9", fontSize: 24, fontWeight: 700 }}>{monthDaysActive}/{daysInMonth}</div>
+                <div style={{ color: "#64748b", fontSize: 13 }}>active days</div>
+              </div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6 }}>
+              {monthCells.map((day) => {
+                const mins = dayMinsMap[day] || 0;
+                const ratio = Math.min(1, mins / Math.max(1, 60));
+                const bg = mins === 0 ? "#1a2236" : `rgba(139,124,246,${0.25 + ratio * 0.75})`;
+                const isToday = day === now.getDate();
+                return (
+                  <div
+                    key={day}
+                    style={{
+                      aspectRatio: "1", borderRadius: 6, background: bg,
+                      border: isToday ? "1.5px solid #818cf8" : "1px solid transparent",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      color: mins > 0 ? "#f1f5f9" : "#475569", fontSize: 10,
+                    }}
+                  >
+                    {day}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
-      <div style={{ background: "#111726", border: "1px solid #1e293b", borderRadius: 20, padding: 22 }}>
+      <div style={{ background: "#111726", border: "1px solid #1e293b", borderRadius: 20, padding: 22, marginBottom: 20 }}>
         <h3 style={{ color: "#f1f5f9", fontSize: 20, fontWeight: 700, margin: "0 0 14px" }}>Recent Sessions</h3>
-        {sessions.length === 0 && <p style={{ color: "#64748b", fontSize: 14 }}>No sessions yet — finish a focus timer to see it here.</p>}
-        {sessions.map((s) => (
+        {sessions.length === 0 && <p style={{ color: "#64748b", fontSize: 14 }}>No sessions yet â finish a focus timer to see it here.</p>}
+        {sessions.slice(0, 8).map((s) => (
           <div key={s.id} className="flex items-center justify-between" style={{ padding: "10px 0", borderTop: "1px solid #1a2236" }}>
             <div className="flex items-center gap-3">
-              <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#818cf8" }} />
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#818cf8", flexShrink: 0 }} />
               <div>
-                <div style={{ color: "#f1f5f9", fontSize: 16, fontWeight: 600 }}>{fmtHM(s.minutes)}</div>
+                <div style={{ color: "#f1f5f9", fontSize: 16, fontWeight: 600 }}>
+                  {fmtHM(s.minutes)}{s.label ? <span style={{ color: "#94a3b8", fontWeight: 400 }}> Â· {s.label}</span> : null}
+                </div>
                 <div style={{ color: "#64748b", fontSize: 13 }}>
                   {new Date(s.completedAt).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
                 </div>
               </div>
             </div>
-            <Check size={18} color="#34d399" />
+            <Check size={18} color="#34d399" style={{ flexShrink: 0 }} />
+          </div>
+        ))}
+      </div>
+
+      <div style={{ background: "#111726", border: "1px solid #1e293b", borderRadius: 20, padding: 22 }}>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <ListChecks size={20} color="#818cf8" />
+            <h3 style={{ color: "#f1f5f9", fontSize: 20, fontWeight: 700, margin: 0 }}>Tasks</h3>
+          </div>
+          {pendingCount > 0 && <span style={{ color: "#64748b", fontSize: 13 }}>{pendingCount} pending</span>}
+        </div>
+
+        <div className="flex gap-2 mb-4">
+          <input
+            value={taskInput}
+            onChange={(e) => setTaskInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                addTodo(taskInput);
+                setTaskInput("");
+              }
+            }}
+            placeholder="Add a taskâ¦"
+            style={{
+              flex: 1, background: "#0a0e1a", border: "1px solid #1e293b", borderRadius: 12,
+              padding: "10px 14px", color: "#f1f5f9", fontSize: 15, outline: "none", boxSizing: "border-box",
+            }}
+          />
+          <button
+            onClick={() => { addTodo(taskInput); setTaskInput(""); }}
+            style={{ background: "#6366f1", border: "none", borderRadius: 12, padding: "0 18px", color: "#fff", fontSize: 20, fontWeight: 600, cursor: "pointer" }}
+          >
+            +
+          </button>
+        </div>
+
+        {todos.length === 0 && <p style={{ color: "#64748b", fontSize: 14 }}>No tasks yet â add something you're working on.</p>}
+        {todos.map((t) => (
+          <div key={t.id} className="flex items-center justify-between" style={{ padding: "10px 0", borderTop: "1px solid #1a2236" }}>
+            <div className="flex items-center gap-3" style={{ minWidth: 0 }} onClick={() => toggleTodo(t.id)}>
+              <div
+                style={{
+                  width: 20, height: 20, borderRadius: 6, flexShrink: 0, cursor: "pointer",
+                  border: t.done ? "none" : "1.5px solid #475569",
+                  background: t.done ? "#34d399" : "transparent",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}
+              >
+                {t.done && <Check size={14} color="#0a0e1a" />}
+              </div>
+              <span
+                style={{
+                  color: t.done ? "#64748b" : "#f1f5f9", fontSize: 15,
+                  textDecoration: t.done ? "line-through" : "none",
+                  overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", cursor: "pointer",
+                }}
+              >
+                {t.text}
+              </span>
+            </div>
+            <button onClick={() => deleteTodo(t.id)} style={{ background: "none", border: "none", cursor: "pointer", flexShrink: 0, padding: 4 }}>
+              <Trash2 size={16} color="#64748b" />
+            </button>
           </div>
         ))}
       </div>
