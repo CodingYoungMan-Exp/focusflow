@@ -618,7 +618,7 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
 
       <div style={{ background: "#111726", border: "1px solid #1e293b", borderRadius: 20, padding: 22, marginBottom: 20 }}>
         <h3 style={{ color: "#f1f5f9", fontSize: 20, fontWeight: 700, margin: "0 0 14px" }}>Recent Sessions</h3>
-        {sessions.length === 0 && <p style={{ color: "#64748b", fontSize: 14 }}>No sessions yet, finish a focus timer to see it here.</p>}
+        {sessions.length === 0 && <p style={{ color: "var(--muted)", fontSize: 14 }}>No sessions yet, finish a focus timer to see it here.</p>}
         {sessions.slice(0, 8).map((s) => (
           <div key={s.id} className="flex items-center justify-between" style={{ padding: "10px 0", borderTop: "1px solid #1a2236" }}>
             <div className="flex items-center gap-3">
@@ -670,7 +670,7 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
           </button>
         </div>
 
-        {todos.length === 0 && <p style={{ color: "#64748b", fontSize: 14 }}>No tasks yet, add something you're working on.</p>}
+        {todos.length === 0 && <p style={{ color: "var(--muted)", fontSize: 14 }}>No tasks yet, add something you're working on.</p>}
         {todos.map((t) => (
           <div key={t.id} className="flex items-center justify-between" style={{ padding: "10px 0", borderTop: "1px solid #1a2236" }}>
             <div className="flex items-center gap-3" style={{ minWidth: 0 }} onClick={() => toggleTodo(t.id)}>
