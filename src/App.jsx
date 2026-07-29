@@ -259,14 +259,14 @@ export default function FocusFlow() {
 
   if (!loaded) {
     return (
-      <div style={{ background: "#0a0e1a", minHeight: "100vh" }} className="flex items-center justify-center">
-        <div style={{ color: "#64748b" }}>Loadingâ¦</div>
+      <div style={{ background: "var(--bg)", minHeight: "100vh" }} className="flex items-center justify-center">
+        <div style={{ color: "var(--muted)" }}>Loadingâ¦</div>
       </div>
     );
   }
 
   return (
-    <div style={{ background: "#0a0e1a", minHeight: "100vh", fontFamily: "system-ui, -apple-system, sans-serif" }} className="flex justify-center">
+    <div style={{ background: "var(--bg)", minHeight: "100vh", fontFamily: "system-ui, -apple-system, sans-serif" }} className="flex justify-center">
       <div style={{ width: "100%", maxWidth: 430 }} className="flex flex-col min-h-screen">
         <div className="flex-1 px-6 pt-8 pb-4 overflow-y-auto">
           {tab === "focus" && (
@@ -324,7 +324,7 @@ function BottomNav({ tab, setTab }) {
     { id: "settings", label: "Settings", Icon: SettingsIcon },
   ];
   return (
-    <div style={{ borderTop: "1px solid var(--card)", background: "#0a0e1a" }} className="flex justify-around py-3">
+    <div style={{ borderTop: "1px solid var(--border)", background: "var(--bg)" }} className="flex justify-around py-3">
       {items.map(({ id, label, Icon }) => {
         const active = tab === id;
         return (
@@ -368,7 +368,7 @@ function FocusTab({ mode, setModeManually, secondsLeft, radius, circumference, d
             onChange={(e) => setLabel(e.target.value)}
             placeholder="What are you focusing on?"
             style={{
-              width: "100%", background: "#131a2a", border: "1px solid var(--border)", borderRadius: 14,
+              width: "100%", background: "var(--secondary)", border: "1px solid var(--border)", borderRadius: 14,
               padding: "12px 16px", color: "var(--text)", fontSize: 15, outline: "none", boxSizing: "border-box",
             }}
           />
@@ -379,7 +379,7 @@ function FocusTab({ mode, setModeManually, secondsLeft, radius, circumference, d
                   key={l}
                   onClick={() => setLabel(l)}
                   style={{
-                    background: "#131a2a", border: "1px solid #1e293b", borderRadius: 999,
+                    background: "var(--secondary)", border: "1px solid var(--border)", borderRadius: 999,
                     padding: "6px 12px", color: "#94a3b8", fontSize: 13, cursor: "pointer",
                   }}
                 >
@@ -396,7 +396,7 @@ function FocusTab({ mode, setModeManually, secondsLeft, radius, circumference, d
           onClick={() => setModeManually("focus")}
           style={{
             flex: 1, padding: "14px 0", borderRadius: 999, border: "none", cursor: "pointer",
-            background: mode === "focus" ? "linear-gradient(90deg,#8b7cf6,#6366f1)" : "#131a2a",
+            background: mode === "focus" ? "linear-gradient(90deg,#8b7cf6,#6366f1)" : "var(--secondary)",
             color: mode === "focus" ? "#fff" : "#94a3b8", fontSize: 16, fontWeight: 600,
           }}
         >
@@ -406,7 +406,7 @@ function FocusTab({ mode, setModeManually, secondsLeft, radius, circumference, d
           onClick={() => setModeManually("break")}
           style={{
             flex: 1, padding: "14px 0", borderRadius: 999, border: "none", cursor: "pointer",
-            background: mode === "break" ? "linear-gradient(90deg,#22d3ee,#0ea5e9)" : "#131a2a",
+            background: mode === "break" ? "linear-gradient(90deg,#22d3ee,#0ea5e9)" : "var(--secondary)",
             color: mode === "break" ? "#fff" : "#94a3b8", fontSize: 16, fontWeight: 600,
           }}
         >
@@ -426,7 +426,7 @@ function FocusTab({ mode, setModeManually, secondsLeft, radius, circumference, d
               <stop offset="100%" stopColor="#34d399" />
             </linearGradient>
           </defs>
-          <circle cx="145" cy="145" r={radius} fill="none" stroke="#1a2236" strokeWidth="14" />
+          <circle cx="145" cy="145" r={radius} fill="none" stroke="var(--border)" strokeWidth="14" />
           <circle
             cx="145" cy="145" r={radius} fill="none"
             stroke={`url(#${gradId})`} strokeWidth="14" strokeLinecap="round"
@@ -449,26 +449,26 @@ function FocusTab({ mode, setModeManually, secondsLeft, radius, circumference, d
       </div>
 
       <div className="flex justify-center items-center gap-8 mb-8">
-        <button onClick={onReset} style={circleBtnStyle("#131a2a")}>
+        <button onClick={onReset} style={circleBtnStyle("var(--secondary)")}>
           <RotateCcw size={20} color="#94a3b8" />
         </button>
         <button onClick={onPlayPause} style={circleBtnStyle(accent, 74)}>
           {isRunning ? <Pause size={28} color="#fff" fill="#fff" /> : <Play size={28} color="#fff" fill="#fff" style={{ marginLeft: 3 }} />}
         </button>
-        <button onClick={onSkip} style={circleBtnStyle("#131a2a")}>
+        <button onClick={onSkip} style={circleBtnStyle("var(--secondary)")}>
           <SkipForward size={20} color="#94a3b8" />
         </button>
       </div>
 
       <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 20, padding: 22 }}>
         <div className="flex justify-between items-center mb-3">
-          <span style={{ color: "#var(--muted)", fontSize: 13, letterSpacing: 1.5, fontWeight: 600 }}>DAILY GOAL</span>
+          <span style={{ color: "var(--muted)", fontSize: 13, letterSpacing: 1.5, fontWeight: 600 }}>DAILY GOAL</span>
           <span style={{ color: "#818cf8", fontSize: 15, fontWeight: 700 }}>{goalPct}%</span>
         </div>
-        <div style={{ height: 8, background: "#1a2236", borderRadius: 999, overflow: "hidden" }}>
+        <div style={{ height: 8, background: "var(--border)", borderRadius: 999, overflow: "hidden" }}>
           <div style={{ height: "100%", width: `${goalPct}%`, background: "linear-gradient(90deg,#8b7cf6,#38bdf8)", borderRadius: 999, transition: "width 0.3s" }} />
         </div>
-        <div style={{ marginTop: 12, color: "#f1f5f9", fontSize: 20, fontWeight: 700 }}>
+        <div style={{ marginTop: 12, color: "var(--text)", fontSize: 20, fontWeight: 700 }}>
           {fmtHM(todayMinutes)} <span style={{ color: "#64748b", fontSize: 15, fontWeight: 400 }}>of {fmtHM(dailyGoalMin)} goal</span>
         </div>
       </div>
@@ -527,7 +527,7 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
         <StatCard icon={<Zap size={20} color="#fbbf24" fill="#fbbf24" />} value={streak} label="Streak" />
       </div>
 
-      <div style={{ background: "#111726", border: "1px solid #1e293b", borderRadius: 20, padding: 22, marginBottom: 20 }}>
+      <div style={{ background: "#111726", border: "1px solid var(--border)", borderRadius: 20, padding: 22, marginBottom: 20 }}>
         <div className="flex justify-between mb-2">
           <span style={{ color: "var(--muted)", fontSize: 13, letterSpacing: 1.5, fontWeight: 600 }}>ALL-TIME FOCUS</span>
           <span style={{ color: "var(--muted)", fontSize: 13, letterSpacing: 1.5, fontWeight: 600 }}>LONGEST STREAK</span>
@@ -541,7 +541,7 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
       <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 20, padding: 22, marginBottom: 20 }}>
         <div className="flex justify-between items-center mb-4">
           <h3 style={{ color: "#var(--text)", fontSize: 20, fontWeight: 700, margin: 0 }}>{view === "week" ? "This Week" : "This Month"}</h3>
-          <div className="flex gap-1" style={{ background: "#0a0e1a", borderRadius: 999, padding: 3 }}>
+          <div className="flex gap-1" style={{ background: "var(--bg)", borderRadius: 999, padding: 3 }}>
             {["week", "month"].map((v) => (
               <button
                 key={v}
@@ -567,7 +567,7 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
                   style={{
                     width: "70%", maxWidth: 34,
                     height: Math.max(6, (d.mins / maxBar) * 100),
-                    background: d.isToday ? "linear-gradient(180deg,#8b7cf6,#6366f1)" : "#1a2236",
+                    background: d.isToday ? "linear-gradient(180deg,#8b7cf6,#6366f1)" : "var(--border)",
                     borderRadius: 6,
                   }}
                 />
@@ -591,7 +591,7 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
               {monthCells.map((day) => {
                 const mins = dayMinsMap[day] || 0;
                 const ratio = Math.min(1, mins / Math.max(1, 60));
-                const bg = mins === 0 ? "#1a2236" : `rgba(139,124,246,${0.25 + ratio * 0.75})`;
+                const bg = mins === 0 ? "var(--border)" : `rgba(139,124,246,${0.25 + ratio * 0.75})`;
                 const isToday = day === now.getDate();
                 return (
                   <div
@@ -616,11 +616,11 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
         <h3 style={{ color: "var(--text)", fontSize: 20, fontWeight: 700, margin: "0 0 14px" }}>Recent Sessions</h3>
         {sessions.length === 0 && <p style={{ color: "var(--muted)", fontSize: 14 }}>No sessions yet, finish a focus timer to see it here.</p>}
         {sessions.slice(0, 8).map((s) => (
-          <div key={s.id} className="flex items-center justify-between" style={{ padding: "10px 0", borderTop: "1px solid #1a2236" }}>
+          <div key={s.id} className="flex items-center justify-between" style={{ padding: "10px 0", borderTop: "1px solid var(--border)" }}>
             <div className="flex items-center gap-3">
               <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#818cf8", flexShrink: 0 }} />
               <div>
-                <div style={{ color: "#f1f5f9", fontSize: 16, fontWeight: 600 }}>
+                <div style={{ color: "var(--text)", fontSize: 16, fontWeight: 600 }}>
                   {fmtHM(s.minutes)}{s.label ? <span style={{ color: "#94a3b8", fontWeight: 400 }}> Â· {s.label}</span> : null}
                 </div>
                 <div style={{ color: "var(--muted)", fontSize: 13 }}>
@@ -637,9 +637,9 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <ListChecks size={20} color="#818cf8" />
-            <h3 style={{ color: "#f1f5f9", fontSize: 20, fontWeight: 700, margin: 0 }}>Tasks</h3>
+            <h3 style={{ color: "var(--text)", fontSize: 20, fontWeight: 700, margin: 0 }}>Tasks</h3>
           </div>
-          {pendingCount > 0 && <span style={{ color: "#64748b", fontSize: 13 }}>{pendingCount} pending</span>}
+          {pendingCount > 0 && <span style={{ color: "var(--muted)", fontSize: 13 }}>{pendingCount} pending</span>}
         </div>
 
         <div className="flex gap-2 mb-4">
@@ -654,7 +654,7 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
             }}
             placeholder="Add a taskâ¦"
             style={{
-              flex: 1, background: "#0a0e1a", border: "1px solid var(--border)", borderRadius: 12,
+              flex: 1, background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 12,
               padding: "10px 14px", color: "var(--text)", fontSize: 15, outline: "none", boxSizing: "border-box",
             }}
           />
@@ -668,7 +668,7 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
 
         {todos.length === 0 && <p style={{ color: "var(--muted)", fontSize: 14 }}>No tasks yet, add something you're working on.</p>}
         {todos.map((t) => (
-          <div key={t.id} className="flex items-center justify-between" style={{ padding: "10px 0", borderTop: "1px solid #1a2236" }}>
+          <div key={t.id} className="flex items-center justify-between" style={{ padding: "10px 0", borderTop: "1px solid var(--border)" }}>
             <div className="flex items-center gap-3" style={{ minWidth: 0 }} onClick={() => toggleTodo(t.id)}>
               <div
                 style={{
@@ -843,20 +843,20 @@ function SettingsGroup({ title, children }) {
 
 function SettingsRow({ title, subtitle, unit, value, onDec, onInc, last }) {
   return (
-    <div className="flex items-center justify-between" style={{ padding: "14px 0", borderBottom: last ? "none" : "1px solid #1a2236" }}>
+    <div className="flex items-center justify-between" style={{ padding: "14px 0", borderBottom: last ? "none" : "1px solid var(--border)" }}>
       <div>
-        <div style={{ color: "#f1f5f9", fontSize: 18, fontWeight: 600 }}>{title}</div>
-        <div style={{ color: "#64748b", fontSize: 14, marginTop: 2 }}>{subtitle}</div>
+        <div style={{ color: "var(--text)", fontSize: 18, fontWeight: 600 }}>{title}</div>
+        <div style={{ color: "var(--muted)", fontSize: 14, marginTop: 2 }}>{subtitle}</div>
       </div>
       <div className="flex items-center gap-4">
-        <button onClick={onDec} style={circleBtnStyle("#1a2236", 42)}>
+        <button onClick={onDec} style={circleBtnStyle("var(--border)", 42)}>
           <Minus size={16} color="#94a3b8" />
         </button>
         <div style={{ textAlign: "center", minWidth: 44 }}>
-          <div style={{ color: "#f1f5f9", fontSize: 22, fontWeight: 700 }}>{value}</div>
-          <div style={{ color: "#64748b", fontSize: 12 }}>{unit}</div>
+          <div style={{ color: "var(--text)", fontSize: 22, fontWeight: 700 }}>{value}</div>
+          <div style={{ color: "var(--muted)", fontSize: 12 }}>{unit}</div>
         </div>
-        <button onClick={onInc} style={circleBtnStyle("#1a2236", 42)}>
+        <button onClick={onInc} style={circleBtnStyle("var(--border)", 42)}>
           <Plus size={16} color="#94a3b8" />
         </button>
       </div>
