@@ -1,0 +1,11 @@
+# Version 1.0.0
+Basic Features.
+
+Features decided to add:
+Planning to add to-do lists and update the view progress to be able to show the current week and the entire month.
+
+# Version 1.0.1
+Added to-do lists and view progress to be able to show the current week and the entire month.
+
+Features decided to add: 
+Theme Engine
