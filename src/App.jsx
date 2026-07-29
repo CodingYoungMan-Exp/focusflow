@@ -697,7 +697,7 @@ function StatCard({ icon, value, label }) {
   );
 }
 
-function SettingsTab({ settings, updateSetting }) {
+function SettingsTab({ settings, updateSetting, theme, setTheme }) {
   return (
     <div>
       <h1 style={{ color: "#f1f5f9", fontSize: 34, fontWeight: 700, margin: 0 }}>Settings</h1>
