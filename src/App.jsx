@@ -294,7 +294,7 @@ export default function FocusFlow() {
             />
           )}
           {tab === "settings" && (
-            <SettingsTab settings={settings} updateSetting={updateSetting} />
+            <SettingsTab settings={settings} updateSetting={updateSetting} theme = {theme} setTheme={setTheme}/>
           )}
         </div>
 
