@@ -5,6 +5,7 @@ const DEFAULTS = { focusMin: 60, breakMin: 15, dailyGoalMin: 180 };
 const SETTINGS_KEY = "focusflow:settings";
 const SESSIONS_KEY = "focusflow:sessions";
 const TODOS_KEY = "focusflow:todos";
+const THEME_KEY = "focusflow:theme";
 
 function pad(n) {
   return String(n).padStart(2, "0");
@@ -57,6 +58,7 @@ export default function FocusFlow() {
   const [isRunning, setIsRunning] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [label, setLabel] = useState("");
+  const [theme, setTheme] = useState("midnight");
   const intervalRef = useRef(null);
 
   useEffect(() => {
@@ -64,6 +66,7 @@ export default function FocusFlow() {
       let loadedSettings = DEFAULTS;
       let loadedSessions = [];
       let loadedTodos = [];
+      let loadedTheme = [];
       try {
         const s = await window.storage.get(SETTINGS_KEY);
         if (s?.value) loadedSettings = { ...DEFAULTS, ...JSON.parse(s.value) };
@@ -76,9 +79,14 @@ export default function FocusFlow() {
         const t = await window.storage.get(TODOS_KEY);
         if (t?.value) loadedTodos = JSON.parse(t.value);
       } catch (e) {}
+      try {
+        const th = await window.storage.get(THEME_KEY);
+        if (th?.value) loadedTheme = th.value;
+      } catch (e) {}
       setSettings(loadedSettings);
       setSessions(loadedSessions);
       setTodos(loadedTodos);
+      setTheme(loadedTheme);
       setSecondsLeft(loadedSettings.focusMin * 60);
       setLoaded(true);
     })();
@@ -112,6 +120,20 @@ export default function FocusFlow() {
     return () => clearInterval(intervalRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRunning]);
+
+  useEffect(() => {
+  document.documentElement.setAttribute("data-theme", theme);
+}, [theme]);
+
+  useEffect(() => {
+  const saveTheme = async () => {
+    try {
+      await window.storage.set(THEME_KEY, theme);
+    } catch {}
+  };
+
+  saveTheme();
+}, [theme]);
 
   function totalSecondsFor(m) {
     return (m === "focus" ? settings.focusMin : settings.breakMin) * 60;
