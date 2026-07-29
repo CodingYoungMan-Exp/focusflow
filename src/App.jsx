@@ -24,10 +24,6 @@ function pad(n) {
   return String(n).padStart(2, "0");
 }
 
-function pad(n) {
-  return String(n).padStart(2, "0");
-}
-
 function fmtHM(totalMin) {
   const h = Math.floor(totalMin / 60);
   const m = Math.round(totalMin % 60);
