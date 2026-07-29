@@ -2,10 +2,27 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Play, Pause, RotateCcw, SkipForward, Timer, BarChart3, Settings as SettingsIcon, Zap, Minus, Plus, Check, Trash2, ListChecks } from "lucide-react";
 
 const DEFAULTS = { focusMin: 60, breakMin: 15, dailyGoalMin: 180 };
+
 const SETTINGS_KEY = "focusflow:settings";
 const SESSIONS_KEY = "focusflow:sessions";
 const TODOS_KEY = "focusflow:todos";
 const THEME_KEY = "focusflow:theme";
+
+const themeOptions = [
+  { id: "midnight", name: "🌌 Midnight" },
+  { id: "forest", name: "🌿 Forest" },
+  { id: "ocean", name: "🌊 Ocean" },
+  { id: "sunset", name: "🌅 Sunset" },
+  { id: "sakura", name: "🌸 Sakura" },
+  { id: "coffee", name: "☕ Coffee" },
+  { id: "cyberpunk", name: "🚀 Cyberpunk" },
+  { id: "frost", name: "❄️ Frost" },
+  { id: "amoled", name: "🌙 AMOLED" },
+];
+
+function pad(n) {
+  return String(n).padStart(2, "0");
+}
 
 function pad(n) {
   return String(n).padStart(2, "0");
@@ -728,6 +745,93 @@ function SettingsTab({ settings, updateSetting, theme, setTheme }) {
           last
         />
       </SettingsGroup>
+      
+      <SettingsGroup title="THEMES">
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(2, 1fr)",
+      gap: 14,
+    }}
+  >
+    {themeOptions.map((t) => {
+      const preview = {
+        midnight: "#818cf8",
+        forest: "#3FB950",
+        ocean: "#22D3EE",
+        sunset: "#FB923C",
+        sakura: "#EC4899",
+        coffee: "#C08457",
+        cyberpunk: "#FF00FF",
+        frost: "#60A5FA",
+        amoled: "#9F7AEA",
+      };
+
+      return (
+        <button
+          key={t.id}
+          onClick={() => setTheme(t.id)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "14px 16px",
+            borderRadius: 16,
+            cursor: "pointer",
+            background: "var(--card)",
+            color: "var(--text)",
+            border:
+              theme === t.id
+                ? "2px solid var(--accent)"
+                : "1px solid var(--border)",
+            boxShadow:
+              theme === t.id
+                ? "0 0 12px rgba(129,140,248,.25)"
+                : "none",
+            transition: "all .25s ease",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+            }}
+          >
+            <div
+              style={{
+                width: 16,
+                height: 16,
+                borderRadius: "50%",
+                background: preview[t.id],
+              }}
+            />
+
+            <span
+              style={{
+                fontWeight: theme === t.id ? 700 : 500,
+              }}
+            >
+              {t.name}
+            </span>
+          </div>
+
+          {theme === t.id && (
+            <span
+              style={{
+                color: "var(--accent)",
+                fontWeight: 700,
+                fontSize: 18,
+              }}
+            >
+              ✓
+            </span>
+          )}
+        </button>
+      );
+    })}
+  </div>
+</SettingsGroup>
     </div>
   );
 }
