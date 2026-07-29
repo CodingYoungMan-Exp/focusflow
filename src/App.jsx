@@ -356,8 +356,8 @@ function FocusTab({ mode, setModeManually, secondsLeft, radius, circumference, d
     <div>
       <div className="flex items-start justify-between mb-1">
         <div>
-          <h1 style={{ color: "#f1f5f9", fontSize: 34, fontWeight: 700, margin: 0 }}>FocusFlow</h1>
-          <p style={{ color: "#64748b", fontSize: 15, marginTop: 4 }}>Stay focused, reduce distractions</p>
+          <h1 style={{ color: "var(--text)", fontSize: 34, fontWeight: 700, margin: 0 }}>FocusFlow</h1>
+          <p style={{ color: "var(--muted)", fontSize: 15, marginTop: 4 }}>Stay focused, reduce distractions</p>
         </div>
         <div style={{ background: "rgba(251,191,36,0.12)", border: "1px solid rgba(251,191,36,0.25)", borderRadius: 999, padding: "6px 14px", display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
           <Zap size={14} color="#fbbf24" fill="#fbbf24" />
@@ -523,7 +523,7 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
 
   return (
     <div>
-      <h1 style={{ color: "#f1f5f9", fontSize: 34, fontWeight: 700, margin: "0 0 20px" }}>Stats</h1>
+      <h1 style={{ color: "var(--text)", fontSize: 34, fontWeight: 700, margin: "0 0 20px" }}>Stats</h1>
 
       <div className="flex gap-3 mb-5">
         <StatCard icon={<Timer size={20} color="#818cf8" />} value={fmtHM(todayMinutes)} label="Today" />
@@ -717,8 +717,8 @@ function StatCard({ icon, value, label }) {
 function SettingsTab({ settings, updateSetting, theme, setTheme }) {
   return (
     <div>
-      <h1 style={{ color: "#f1f5f9", fontSize: 34, fontWeight: 700, margin: 0 }}>Settings</h1>
-      <p style={{ color: "#64748b", fontSize: 15, margin: "4px 0 24px" }}>Customize your focus sessions</p>
+      <h1 style={{ color: "var(--text)", fontSize: 34, fontWeight: 700, margin: 0 }}>Settings</h1>
+      <p style={{ color: "var(--muted)", fontSize: 15, margin: "4px 0 24px" }}>Customize your focus sessions</p>
 
       <SettingsGroup title="TIMER DURATIONS">
         <SettingsRow
