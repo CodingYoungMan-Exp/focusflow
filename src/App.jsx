@@ -79,7 +79,7 @@ export default function FocusFlow() {
       let loadedSettings = DEFAULTS;
       let loadedSessions = [];
       let loadedTodos = [];
-      let loadedTheme = [];
+      let loadedTheme = "midnight";
       try {
         const s = await window.storage.get(SETTINGS_KEY);
         if (s?.value) loadedSettings = { ...DEFAULTS, ...JSON.parse(s.value) };
