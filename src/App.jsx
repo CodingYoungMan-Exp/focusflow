@@ -432,7 +432,7 @@ function FocusTab({ mode, setModeManually, secondsLeft, radius, circumference, d
             stroke={`url(#${gradId})`} strokeWidth="14" strokeLinecap="round"
             strokeDasharray={circumference} strokeDashoffset={dashOffset}
             transform="rotate(-90 145 145)"
-            style={{ transition: "stroke-dashoffset 0.3s linear" }}
+            style={{ transition: "stroke-dashoffset .3s linear", filter: "drop-shadow(0 0 8px var(--accent))",}}
           />
           <text x="145" y="122" textAnchor="middle" fill="var(--muted)" fontSize="15" letterSpacing="3" style={{ textTransform: "uppercase" }}>
             {mode === "focus" ? "Focus" : "Short Break"}
