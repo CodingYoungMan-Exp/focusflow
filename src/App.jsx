@@ -324,7 +324,19 @@ function BottomNav({ tab, setTab }) {
     { id: "settings", label: "Settings", Icon: SettingsIcon },
   ];
   return (
-    <div style={{ borderTop: "1px solid var(--border)", background: "var(--bg)" }} className="flex justify-around py-3">
+    <div
+  className="flex justify-around py-3"
+  style={{
+    position: "sticky",
+    bottom: 16,
+    margin: 16,
+    borderRadius: 24,
+    background: "var(--glass)",
+    backdropFilter: "blur(16px)",
+    border: "1px solid var(--border)",
+    boxShadow: "0 12px 32px rgba(0,0,0,.35)",
+  }}
+>
       {items.map(({ id, label, Icon }) => {
         const active = tab === id;
         return (
