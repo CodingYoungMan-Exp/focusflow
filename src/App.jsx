@@ -371,8 +371,8 @@ function FocusTab({ mode, setModeManually, secondsLeft, radius, circumference, d
           <p style={{ color: "var(--muted)", fontSize: 15, marginTop: 4 }}>Stay focused, reduce distractions</p>
         </div>
         <div style={{ background: "rgba(251,191,36,0.12)", border: "1px solid rgba(251,191,36,0.25)", borderRadius: 999, padding: "6px 14px", display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
-          <Zap size={14} color="#fbbf24" fill="#fbbf24" />
-          <span style={{ color: "#fbbf24", fontSize: 14, fontWeight: 600 }}>{streak} day{streak === 1 ? "" : "s"}</span>
+          <Zap size={14} color="var(--warning)" fill="var(--warning)" />
+          <span style={{ color: "var(--warning)", fontSize: 14, fontWeight: 600 }}>{streak} day{streak === 1 ? "" : "s"}</span>
         </div>
       </div>
 
@@ -411,7 +411,7 @@ function FocusTab({ mode, setModeManually, secondsLeft, radius, circumference, d
           onClick={() => setModeManually("focus")}
           style={{
             flex: 1, padding: "14px 0", borderRadius: 999, border: "none", cursor: "pointer",
-            background: mode === "focus" ? "linear-gradient(90deg,#8b7cf6,#6366f1)" : "var(--secondary)",
+            background: mode === "focus" ? "linear-gradient(90deg,var(--accent),var(--accent2))" : "var(--secondary)",
             color: mode === "focus" ? "#fff" : "#94a3b8", fontSize: 16, fontWeight: 600,
           }}
         >
@@ -421,7 +421,7 @@ function FocusTab({ mode, setModeManually, secondsLeft, radius, circumference, d
           onClick={() => setModeManually("break")}
           style={{
             flex: 1, padding: "14px 0", borderRadius: 999, border: "none", cursor: "pointer",
-            background: mode === "break" ? "linear-gradient(90deg,#22d3ee,#0ea5e9)" : "var(--secondary)",
+            background: mode === "break" ? "linear-gradient(90deg,var(--accent2),#0ea5e9)" : "var(--secondary)",
             color: mode === "break" ? "#fff" : "#94a3b8", fontSize: 16, fontWeight: 600,
           }}
         >
@@ -433,12 +433,12 @@ function FocusTab({ mode, setModeManually, secondsLeft, radius, circumference, d
         <svg width="290" height="290" viewBox="0 0 290 290">
           <defs>
             <linearGradient id="focusGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#38bdf8" />
-              <stop offset="100%" stopColor="#8b7cf6" />
+              <stop offset="0%" stopColor="var(--accent2)" />
+              <stop offset="100%" stopColor="var(--accent)" />
             </linearGradient>
             <linearGradient id="breakGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#22d3ee" />
-              <stop offset="100%" stopColor="#34d399" />
+              <stop offset="0%" stopColor="var(--accent2)" />
+              <stop offset="100%" stopColor="var(--success)" />
             </linearGradient>
           </defs>
           <circle cx="145" cy="145" r={radius} fill="none" stroke="var(--border)" strokeWidth="14" />
@@ -456,7 +456,7 @@ function FocusTab({ mode, setModeManually, secondsLeft, radius, circumference, d
             {pad(mins)}:{pad(secs)}
           </text>
           {mode === "focus" && label && (
-            <text x="145" y="196" textAnchor="middle" fill="#818cf8" fontSize="14">
+            <text x="145" y="196" textAnchor="middle" fill="var(--accent)" fontSize="14">
               {label.length > 24 ? label.slice(0, 24) + "â¦" : label}
             </text>
           )}
@@ -478,7 +478,7 @@ function FocusTab({ mode, setModeManually, secondsLeft, radius, circumference, d
       <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 20, padding: 22 }}>
         <div className="flex justify-between items-center mb-3">
           <span style={{ color: "var(--muted)", fontSize: 13, letterSpacing: 1.5, fontWeight: 600 }}>DAILY GOAL</span>
-          <span style={{ color: "#818cf8", fontSize: 15, fontWeight: 700 }}>{goalPct}%</span>
+          <span style={{ color: "var(--accent)", fontSize: 15, fontWeight: 700 }}>{goalPct}%</span>
         </div>
         <div style={{ height: 8, background: "var(--border)", borderRadius: 999, overflow: "hidden" }}>
           <div
@@ -554,9 +554,9 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
       <h1 style={{ color: "var(--text)", fontSize: 34, fontWeight: 700, margin: "0 0 20px" }}>Stats</h1>
 
       <div className="flex gap-3 mb-5">
-        <StatCard icon={<Timer size={20} color="#818cf8" />} value={fmtHM(todayMinutes)} label="Today" />
-        <StatCard icon={<Check size={20} color="#22d3ee" />} value={sessionCount} label="Sessions" />
-        <StatCard icon={<Zap size={20} color="#fbbf24" fill="#fbbf24" />} value={streak} label="Streak" />
+        <StatCard icon={<Timer size={20} color="var(--accent)" />} value={fmtHM(todayMinutes)} label="Today" />
+        <StatCard icon={<Check size={20} color="var(--accent2)" />} value={sessionCount} label="Sessions" />
+        <StatCard icon={<Zap size={20} color="var(--warning)" fill="var(--warning)" />} value={streak} label="Streak" />
       </div>
 
       <div style={{ background: "#111726", border: "1px solid var(--border)", borderRadius: 20, padding: 22, marginBottom: 20 }}>
@@ -566,7 +566,7 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
         </div>
         <div className="flex justify-between items-end">
           <span style={{ color: "var(--text)", fontSize: 30, fontWeight: 700 }}>{fmtHM(allTimeMinutes)}</span>
-          <span style={{ color: "#818cf8", fontSize: 18, fontWeight: 600 }}>{longestStreak} day{longestStreak === 1 ? "" : "s"}</span>
+          <span style={{ color: "var(--accent)", fontSize: 18, fontWeight: 600 }}>{longestStreak} day{longestStreak === 1 ? "" : "s"}</span>
         </div>
       </div>
 
@@ -603,7 +603,7 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
                     borderRadius: 6,
                   }}
                 />
-                <span style={{ color: d.isToday ? "#818cf8" : "var(--muted)", fontSize: 13, marginTop: 8 }}>{d.label}</span>
+                <span style={{ color: d.isToday ? "var(--accent)" : "var(--muted)", fontSize: 13, marginTop: 8 }}>{d.label}</span>
               </div>
             ))}
           </div>
@@ -630,7 +630,7 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
                     key={day}
                     style={{
                       aspectRatio: "1", borderRadius: 6, background: bg,
-                      border: isToday ? "1.5px solid #818cf8" : "1px solid transparent",
+                      border: isToday ? "1.5px solid var(--accent)" : "1px solid transparent",
                       display: "flex", alignItems: "center", justifyContent: "center",
                       color: mins > 0 ? "#var(--text)" : "#475569", fontSize: 10,
                     }}
@@ -650,7 +650,7 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
         {sessions.slice(0, 8).map((s) => (
           <div key={s.id} className="flex items-center justify-between" style={{ padding: "10px 0", borderTop: "1px solid var(--border)" }}>
             <div className="flex items-center gap-3">
-              <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#818cf8", flexShrink: 0 }} />
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--accent)", flexShrink: 0 }} />
               <div>
                 <div style={{ color: "var(--text)", fontSize: 16, fontWeight: 600 }}>
                   {fmtHM(s.minutes)}{s.label ? <span style={{ color: "#94a3b8", fontWeight: 400 }}> Â· {s.label}</span> : null}
@@ -660,7 +660,7 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
                 </div>
               </div>
             </div>
-            <Check size={18} color="#34d399" style={{ flexShrink: 0 }} />
+            <Check size={18} color="var(--success)" style={{ flexShrink: 0 }} />
           </div>
         ))}
       </div>
@@ -668,7 +668,7 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
       <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 20, padding: 22 }}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <ListChecks size={20} color="#818cf8" />
+            <ListChecks size={20} color="var(--accent)" />
             <h3 style={{ color: "var(--text)", fontSize: 20, fontWeight: 700, margin: 0 }}>Tasks</h3>
           </div>
           {pendingCount > 0 && <span style={{ color: "var(--muted)", fontSize: 13 }}>{pendingCount} pending</span>}
@@ -706,7 +706,7 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
                 style={{
                   width: 20, height: 20, borderRadius: 6, flexShrink: 0, cursor: "pointer",
                   border: t.done ? "none" : "1.5px solid #475569",
-                  background: t.done ? "#34d399" : "transparent",
+                  background: t.done ? "var(--success)" : "transparent",
                   display: "flex", alignItems: "center", justifyContent: "center",
                 }}
               >
@@ -784,9 +784,9 @@ function SettingsTab({ settings, updateSetting, theme, setTheme }) {
   >
     {themeOptions.map((t) => {
       const preview = {
-        midnight: "#818cf8",
+        midnight: "var(--accent)",
         forest: "#3FB950",
-        ocean: "#22D3EE",
+        ocean: "var(--accent2)",
         sunset: "#FB923C",
         sakura: "#EC4899",
         coffee: "#C08457",
