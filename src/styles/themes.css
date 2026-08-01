@@ -37,6 +37,8 @@
     --accent:#818cf8;
 
     --accent2:#38bdf8;
+    
+    --glass: rgba(17, 23, 38, 0.75);
 
     --success:#34d399;
 
@@ -69,6 +71,8 @@
     --accent:#3FB950;
 
     --accent2:#8AE99C;
+    
+    --glass: rgba(17, 23, 38, 0.75);
 
     --success:#22C55E;
 
@@ -99,6 +103,8 @@
     --accent:#22D3EE;
 
     --accent2:#3B82F6;
+    
+    --glass: rgba(17, 23, 38, 0.75);
 
 }
 
@@ -123,6 +129,8 @@
     --accent:#FB923C;
 
     --accent2:#FACC15;
+    
+    --glass: rgba(17, 23, 38, 0.75);
 
 }
 
@@ -147,6 +155,8 @@
     --accent:#EC4899;
 
     --accent2:#F9A8D4;
+    
+    --glass: rgba(17, 23, 38, 0.75);
 
 }
 
@@ -171,6 +181,8 @@
     --accent:#C08457;
 
     --accent2:#E6B17A;
+    
+    --glass: rgba(17, 23, 38, 0.75);
 
 }
 
@@ -195,6 +207,8 @@
     --accent:#FF00FF;
 
     --accent2:#00F6FF;
+    
+    --glass: rgba(17, 23, 38, 0.75);
 
 }
 
@@ -219,6 +233,8 @@
     --accent:#3B82F6;
 
     --accent2:#60A5FA;
+    
+    --glass: rgba(17, 23, 38, 0.75);
 
 }
 
@@ -243,6 +259,8 @@
     --accent:#9F7AEA;
 
     --accent2:#6EE7F9;
+    
+    --glass: rgba(17, 23, 38, 0.75);
 
 }
 button{
@@ -258,4 +276,67 @@ button:hover{
 
 button:active{
     transform:scale(.96);
+}
+/* ==========================
+   Animated Background
+========================== */
+
+/* Hide by default */
+
+.animated-bg::before,
+.animated-bg::after {
+  opacity: 0;
+}
+
+/* Midnight theme enables them */
+
+[data-theme="midnight"] .animated-bg::before,
+[data-theme="midnight"] .animated-bg::after {
+  opacity: 1;
+}
+
+/* Existing animated background */
+
+.animated-bg::before,
+.animated-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-repeat: repeat;
+  pointer-events: none;
+}
+
+/* Small stars */
+.animated-bg::before {
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,.8) 1px, transparent 1px);
+  background-size: 80px 80px;
+  animation: starsMove 90s linear infinite;
+  opacity: .35;
+}
+
+/* Large stars */
+.animated-bg::after {
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,.6) 2px, transparent 2px);
+  background-size: 180px 180px;
+  animation: starsMoveReverse 140s linear infinite;
+  opacity: .18;
+}
+@keyframes starsMove {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-80px);
+  }
+}
+
+@keyframes starsMoveReverse {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(80px);
+  }
 }
