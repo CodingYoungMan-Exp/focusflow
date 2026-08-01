@@ -266,8 +266,9 @@ export default function FocusFlow() {
   }
 
   return (
-    <div style={{ background: "var(--bg)", minHeight: "100vh", fontFamily: "system-ui, -apple-system, sans-serif" }} className="flex justify-center">
-      <div style={{ width: "100%", maxWidth: 430 }} className="flex flex-col min-h-screen">
+    <div style={{ background: "var(--bg)", minHeight: "100vh",position: "relative", overflow: "hidden", fontFamily: "system-ui, -apple-system, sans-serif" }} className="flex justify-center">
+      <div className="animated-bg"></div>
+      <div style={{ width: "100%", maxWidth: 430, position: "relative", zIndex: 2, }} className="flex flex-col min-h-screen">
         <div className="flex-1 px-6 pt-8 pb-4 overflow-y-auto">
           {tab === "focus" && (
             <FocusTab
@@ -313,6 +314,7 @@ export default function FocusFlow() {
 
         <BottomNav tab={tab} setTab={setTab} />
       </div>
+      <div className="animated-overlay"></div>
     </div>
   );
 }
