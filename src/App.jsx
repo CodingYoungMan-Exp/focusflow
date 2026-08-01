@@ -346,7 +346,7 @@ function BottomNav({ tab, setTab }) {
 function FocusTab({ mode, setModeManually, secondsLeft, radius, circumference, dashOffset, gradId, isRunning, onPlayPause, onReset, onSkip, streak, goalPct, todayMinutes, dailyGoalMin, label, setLabel, recentLabels }) {
   const mins = Math.floor(secondsLeft / 60);
   const secs = secondsLeft % 60;
-  const accent = mode === "focus" ? "#818cf8" : "#22d3ee";
+  const accent = mode === "focus" ? "var(--accent)" : "var(--accent2)";
 
   return (
     <div>
