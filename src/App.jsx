@@ -478,7 +478,15 @@ function FocusTab({ mode, setModeManually, secondsLeft, radius, circumference, d
           <span style={{ color: "#818cf8", fontSize: 15, fontWeight: 700 }}>{goalPct}%</span>
         </div>
         <div style={{ height: 8, background: "var(--border)", borderRadius: 999, overflow: "hidden" }}>
-          <div style={{ height: "100%", width: `${goalPct}%`, background: "linear-gradient(90deg,#8b7cf6,#38bdf8)", borderRadius: 999, transition: "width 0.3s" }} />
+          <div
+  style={{
+    height: "100%",
+    width: `${goalPct}%`,
+    background: "linear-gradient(90deg,var(--accent),var(--accent2))",
+    borderRadius: 999,
+    transition: "width .5s ease",
+  }}
+/>
         </div>
         <div style={{ marginTop: 12, color: "var(--text)", fontSize: 20, fontWeight: 700 }}>
           {fmtHM(todayMinutes)} <span style={{ color: "#64748b", fontSize: 15, fontWeight: 400 }}>of {fmtHM(dailyGoalMin)} goal</span>
