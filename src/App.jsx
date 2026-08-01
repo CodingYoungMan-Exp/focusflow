@@ -490,8 +490,17 @@ function FocusTab({ mode, setModeManually, secondsLeft, radius, circumference, d
 
 function circleBtnStyle(bg, size = 58) {
   return {
-    width: size, height: size, borderRadius: "50%", background: bg, border: "none",
-    display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
+    width: size,
+    height: size,
+    borderRadius: "50%",
+    background: bg,
+    border: "none",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    transition: "all .2s ease",
+    boxShadow: "0 4px 12px rgba(0,0,0,.2)",
   };
 }
 
