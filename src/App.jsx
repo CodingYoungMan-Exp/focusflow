@@ -570,7 +570,16 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
         </div>
       </div>
 
-      <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 20, padding: 22, marginBottom: 20 }}>
+     <div
+  style={{
+    background: "var(--card)",
+    border: "1px solid var(--border)",
+    borderRadius: 20,
+    padding: 22,
+    boxShadow: "0 10px 30px var(--shadow)",
+    marginBottom: 20,
+  }}
+>
         <div className="flex justify-between items-center mb-4">
           <h3 style={{ color: "#var(--text)", fontSize: 20, fontWeight: 700, margin: 0 }}>{view === "week" ? "This Week" : "This Month"}</h3>
           <div className="flex gap-1" style={{ background: "var(--bg)", borderRadius: 999, padding: 3 }}>
@@ -644,7 +653,16 @@ function StatsTab({ todayMinutes, sessionCount, streak, longestStreak, allTimeMi
         )}
       </div>
 
-      <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 20, padding: 22, marginBottom: 20 }}>
+      <div
+  style={{
+    background: "var(--card)",
+    border: "1px solid var(--border)",
+    borderRadius: 20,
+    padding: 22,
+    boxShadow: "0 10px 30px var(--shadow)",
+    marginBottom: 20,
+  }}
+>
         <h3 style={{ color: "var(--text)", fontSize: 20, fontWeight: 700, margin: "0 0 14px" }}>Recent Sessions</h3>
         {sessions.length === 0 && <p style={{ color: "var(--muted)", fontSize: 14 }}>No sessions yet, finish a focus timer to see it here.</p>}
         {sessions.slice(0, 8).map((s) => (
