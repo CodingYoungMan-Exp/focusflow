@@ -336,7 +336,8 @@ function BottomNav({ tab, setTab }) {
     background: "var(--glass)",
     backdropFilter: "blur(16px)",
     border: "1px solid var(--border)",
-    boxShadow: "0 12px 32px rgba(0,0,0,.35)",
+    boxShadow: "0 12px 32px var(--shadow)",
+    WebkitBacdropFilter: "blur(16px)",
   }}
 >
       {items.map(({ id, label, Icon }) => {
@@ -346,7 +347,7 @@ function BottomNav({ tab, setTab }) {
             key={id}
             onClick={() => setTab(id)}
             className="flex flex-col items-center gap-1 px-4"
-            style={{ color: active ? "#818cf8" : "var(--muted)", background: "none", border: "none", cursor: "pointer" }}
+            style={{ color: active ? "var(--accent)" : "var(--muted)", background: "none", border: "none", cursor: "pointer", transition: "all .25s ease"}}
           >
             <Icon size={22} strokeWidth={2} />
             <span style={{ fontSize: 13 }}>{label}</span>
