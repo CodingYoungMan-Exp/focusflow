@@ -52,3 +52,6 @@ Added the Theme Engine!
 
 ⏱️ Enhanced Timer Experience
     - A glowing progress ring and improved visual feedback while focusing.
+
+#Version 1.0.3-(2-b)
+Focusing on fixing some minor bugs and text changes
