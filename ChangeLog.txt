@@ -26,4 +26,29 @@ Added the Theme Engine!
   🌙 AMOLED
 
 #Version 1.0.2-b
-(In progress)
+🎨 New Theme Engine with support for multiple themes: (modified)
+    -  🌌 Midnight
+    - 🌿 Forest
+    - 🌊 Ocean
+    -  🌅 Sunset
+    - 🌸 Sakura
+    -  ☕ Coffee
+    - 🚀 Cyberpunk
+    - ❄️ Frost
+    - 🌙 AMOLED Black
+
+🎭 Instant Theme Switching
+    - Colors now update across the entire app for a more personalized experience.
+
+🪟 Modern Glassmorphism UI (**new**)
+    - A redesigned floating navigation bar with blur effects and smoother visuals.
+
+🌈 Improved Visual Design
+    - Theme-aware buttons, borders, text, and progress indicators.
+    - Cleaner layouts with enhanced shadows and depth.
+
+⚡ Smoother Animations
+    - Refined transitions throughout the interface for a more polished feel.
+
+⏱️ Enhanced Timer Experience
+    - A glowing progress ring and improved visual feedback while focusing.
