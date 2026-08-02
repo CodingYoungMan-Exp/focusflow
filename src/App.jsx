@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Play, Pause, RotateCcw, SkipForward, Timer, BarChart3, Settings as SettingsIcon, Zap, Minus, Plus, Check, Trash2, ListChecks } from "lucide-react";
+import { supabase } from "./lib/supabaseClient";
+import { getDeviceId } from "./lib/deviceId";
 
 const DEFAULTS = { focusMin: 60, breakMin: 15, dailyGoalMin: 180 };
 
@@ -72,47 +74,69 @@ export default function FocusFlow() {
   const [loaded, setLoaded] = useState(false);
   const [label, setLabel] = useState("");
   const [theme, setTheme] = useState("midnight");
+  const [deviceId] = useState(() => getDeviceId());
   const intervalRef = useRef(null);
 
   useEffect(() => {
     (async () => {
-      let loadedSettings = DEFAULTS;
-      let loadedSessions = [];
-      let loadedTodos = [];
-      let loadedTheme = "midnight";
-      try {
-        const s = await window.storage.get(SETTINGS_KEY);
-        if (s?.value) loadedSettings = { ...DEFAULTS, ...JSON.parse(s.value) };
-      } catch (e) {}
-      try {
-        const s = await window.storage.get(SESSIONS_KEY);
-        if (s?.value) loadedSessions = JSON.parse(s.value);
-      } catch (e) {}
-      try {
-        const t = await window.storage.get(TODOS_KEY);
-        if (t?.value) loadedTodos = JSON.parse(t.value);
-      } catch (e) {}
-      try {
-        const th = await window.storage.get(THEME_KEY);
-        if (th?.value) loadedTheme = th.value;
-      } catch (e) {}
-      setSettings(loadedSettings);
-      setSessions(loadedSessions);
-      setTodos(loadedTodos);
-      setTheme(loadedTheme);
-      setSecondsLeft(loadedSettings.focusMin * 60);
-      setLoaded(true);
+    let loadedSettings = DEFAULTS;
+    let loadedSessions = [];
+    let loadedTodos = [];
+    let loadedTheme = "midnight";
+    try {
+      const s = localStorage.getItem(SETTINGS_KEY);
+      if (s) loadedSettings = { ...DEFAULTS, ...JSON.parse(s) };
+    } catch (e) {}
+    try {
+      const s = localStorage.getItem(SESSIONS_KEY);
+      if (s) loadedSessions = JSON.parse(s);
+    } catch (e) {}
+    try {
+      const t = localStorage.getItem(TODOS_KEY);
+      if (t) loadedTodos = JSON.parse(t);
+    } catch (e) {}
+    try {
+      const th = localStorage.getItem(THEME_KEY);
+      if (th) loadedTheme = th;
+    } catch (e) {}
+    setSettings(loadedSettings);
+    setSessions(loadedSessions);
+    setTodos(loadedTodos);
+    setTheme(loadedTheme);
+    setSecondsLeft(loadedSettings.focusMin * 60);
+
+    // Try to load from the cloud — if a device is missing local data
+    // (e.g. browser storage got cleared), this restores it.
+    try {
+      const { data } = await supabase
+        .from("user_data")
+        .select("*")
+        .eq("device_id", getDeviceId())
+        .maybeSingle();
+      if (data) {
+        if (data.settings) {
+          const merged = { ...DEFAULTS, ...data.settings };
+          setSettings(merged);
+          setSecondsLeft(merged.focusMin * 60);
+        }
+        if (data.sessions) setSessions(data.sessions);
+        if (data.todos) setTodos(data.todos);
+        if (data.theme) setTheme(data.theme);
+      }
+    } catch (e) {}
+
+    setLoaded(true);
     })();
   }, []);
 
-  const persistSettings = useCallback(async (next) => {
-    try { await window.storage.set(SETTINGS_KEY, JSON.stringify(next)); } catch (e) {}
+  const persistSettings = useCallback((next) => {
+    try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(next)); } catch (e) {}
   }, []);
-  const persistSessions = useCallback(async (next) => {
-    try { await window.storage.set(SESSIONS_KEY, JSON.stringify(next)); } catch (e) {}
+  const persistSessions = useCallback((next) => {
+    try { localStorage.setItem(SESSIONS_KEY, JSON.stringify(next)); } catch (e) {}
   }, []);
-  const persistTodos = useCallback(async (next) => {
-    try { await window.storage.set(TODOS_KEY, JSON.stringify(next)); } catch (e) {}
+  const persistTodos = useCallback((next) => {
+    try { localStorage.setItem(TODOS_KEY, JSON.stringify(next)); } catch (e) {}
   }, []);
 
   useEffect(() => {
@@ -139,13 +163,31 @@ export default function FocusFlow() {
   }, [theme]);
 
   useEffect(() => {
-    const saveTheme = async () => {
-      try {
-        await window.storage.set(THEME_KEY, theme);
-      } catch (e) {}
-    };
-    saveTheme();
+    try {
+      localStorage.setItem(THEME_KEY, theme);
+    } catch (e) {}
   }, [theme]);
+
+  // Sync full state to the cloud whenever it changes, so data survives
+  // even if this device's local storage gets cleared.
+  useEffect(() => {
+    if (!loaded) return;
+    const t = setTimeout(() => {
+      supabase
+        .from("user_data")
+        .upsert({
+          device_id: deviceId,
+          settings,
+          sessions,
+          todos,
+          theme,
+          updated_at: new Date().toISOString(),
+        })
+        .then(() => {})
+        .catch(() => {});
+    }, 500);
+    return () => clearTimeout(t);
+  }, [settings, sessions, todos, theme, loaded, deviceId]);
 
   function totalSecondsFor(m) {
     return (m === "focus" ? settings.focusMin : settings.breakMin) * 60;
