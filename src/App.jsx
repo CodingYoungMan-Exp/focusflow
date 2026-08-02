@@ -22,6 +22,7 @@ const themeOptions = [
   { id: "frost", name: "❄️ Frost" },
   { id: "amoled", name: "🌙 AMOLED" },
 ];
+
 function pad(n) {
   return String(n).padStart(2, "0");
 }
