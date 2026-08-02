@@ -9,6 +9,7 @@ const SETTINGS_KEY = "focusflow:settings";
 const SESSIONS_KEY = "focusflow:sessions";
 const TODOS_KEY = "focusflow:todos";
 const THEME_KEY = "focusflow:theme";
+const LAST_SAVED_KEY = "focusflow:lastSaved";
 
 const themeOptions = [
   { id: "midnight", name: "🌌 Midnight" },
@@ -105,8 +106,15 @@ export default function FocusFlow() {
     setTheme(loadedTheme);
     setSecondsLeft(loadedSettings.focusMin * 60);
 
-    // Try to load from the cloud — if a device is missing local data
-    // (e.g. browser storage got cleared), this restores it.
+    // Try to load from the cloud — but only trust it if it's actually
+    // newer than what's already saved on this device. Otherwise a slightly
+    // stale cloud copy (e.g. synced just before the app was closed) could
+    // wipe out a change that hasn't finished uploading yet.
+    let localLastSaved = 0;
+    try {
+      localLastSaved = parseInt(localStorage.getItem(LAST_SAVED_KEY) || "0", 10);
+    } catch (e) {}
+
     try {
       const { data } = await supabase
         .from("user_data")
@@ -114,14 +122,17 @@ export default function FocusFlow() {
         .eq("device_id", getDeviceId())
         .maybeSingle();
       if (data) {
-        if (data.settings) {
-          const merged = { ...DEFAULTS, ...data.settings };
-          setSettings(merged);
-          setSecondsLeft(merged.focusMin * 60);
+        const cloudUpdatedAt = data.updated_at ? new Date(data.updated_at).getTime() : 0;
+        if (cloudUpdatedAt > localLastSaved) {
+          if (data.settings) {
+            const merged = { ...DEFAULTS, ...data.settings };
+            setSettings(merged);
+            setSecondsLeft(merged.focusMin * 60);
+          }
+          if (data.sessions) setSessions(data.sessions);
+          if (data.todos) setTodos(data.todos);
+          if (data.theme) setTheme(data.theme);
         }
-        if (data.sessions) setSessions(data.sessions);
-        if (data.todos) setTodos(data.todos);
-        if (data.theme) setTheme(data.theme);
       }
     } catch (e) {}
 
@@ -130,13 +141,22 @@ export default function FocusFlow() {
   }, []);
 
   const persistSettings = useCallback((next) => {
-    try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(next)); } catch (e) {}
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(next));
+      localStorage.setItem(LAST_SAVED_KEY, String(Date.now()));
+    } catch (e) {}
   }, []);
   const persistSessions = useCallback((next) => {
-    try { localStorage.setItem(SESSIONS_KEY, JSON.stringify(next)); } catch (e) {}
+    try {
+      localStorage.setItem(SESSIONS_KEY, JSON.stringify(next));
+      localStorage.setItem(LAST_SAVED_KEY, String(Date.now()));
+    } catch (e) {}
   }, []);
   const persistTodos = useCallback((next) => {
-    try { localStorage.setItem(TODOS_KEY, JSON.stringify(next)); } catch (e) {}
+    try {
+      localStorage.setItem(TODOS_KEY, JSON.stringify(next));
+      localStorage.setItem(LAST_SAVED_KEY, String(Date.now()));
+    } catch (e) {}
   }, []);
 
   useEffect(() => {
@@ -169,10 +189,17 @@ export default function FocusFlow() {
   }, [theme]);
 
   // Sync full state to the cloud whenever it changes, so data survives
-  // even if this device's local storage gets cleared.
+  // even if this device's local storage gets cleared. Also flushes
+  // immediately when the app is closed/backgrounded, so a quick close
+  // right after a change doesn't lose that change.
   useEffect(() => {
     if (!loaded) return;
-    const t = setTimeout(() => {
+
+    const doSync = () => {
+      const now = Date.now();
+      try {
+        localStorage.setItem(LAST_SAVED_KEY, String(now));
+      } catch (e) {}
       supabase
         .from("user_data")
         .upsert({
@@ -181,12 +208,28 @@ export default function FocusFlow() {
           sessions,
           todos,
           theme,
-          updated_at: new Date().toISOString(),
+          updated_at: new Date(now).toISOString(),
         })
         .then(() => {})
         .catch(() => {});
-    }, 500);
-    return () => clearTimeout(t);
+    };
+
+    const t = setTimeout(doSync, 500);
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "hidden") {
+        clearTimeout(t);
+        doSync();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("pagehide", doSync);
+
+    return () => {
+      clearTimeout(t);
+      document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("pagehide", doSync);
+    };
   }, [settings, sessions, todos, theme, loaded, deviceId]);
 
   function totalSecondsFor(m) {
