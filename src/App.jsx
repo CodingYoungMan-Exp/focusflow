@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Play, Pause, RotateCcw, SkipForward, Timer, BarChart3, Settings as SettingsIcon, Zap, Minus, Plus, Check, Trash2, ListChecks } from "lucide-react";
+import { Analytics } from "@vercel/analytics/react";
 import { supabase } from "./lib/supabaseClient";
 import { getDeviceId } from "./lib/deviceId";
 
@@ -399,6 +400,7 @@ export default function FocusFlow() {
         <BottomNav tab={tab} setTab={setTab} />
       </div>
       <div className="animated-overlay"></div>
+      <Analytics />
     </div>
   );
 }
