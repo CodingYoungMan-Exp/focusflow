@@ -116,13 +116,10 @@ export default function FocusFlow() {
     } catch (e) {}
 
     try {
-      const { data } = await supabase
-        .from("user_data")
-        .select("*")
-        .eq("device_id", getDeviceId())
-        .maybeSingle();
-      if (data) {
-        const cloudUpdatedAt = data.updated_at ? new Date(data.updated_at).getTime() : 0;
+      const snap = await getDoc(doc(db, "user_data", getDeviceId()));
+      if (snap.exists()) {
+        const data = snap.data();
+        const cloudUpdatedAt = data.updatedAt ? new Date(data.updatedAt).getTime() : 0;
         if (cloudUpdatedAt > localLastSaved) {
           if (data.settings) {
             const merged = { ...DEFAULTS, ...data.settings };
@@ -200,16 +197,17 @@ export default function FocusFlow() {
       try {
         localStorage.setItem(LAST_SAVED_KEY, String(now));
       } catch (e) {}
-      supabase
-        .from("user_data")
-        .upsert({
-          device_id: deviceId,
+      setDoc(
+        doc(db, "user_data", deviceId),
+        {
           settings,
           sessions,
           todos,
           theme,
-          updated_at: new Date(now).toISOString(),
-        })
+          updatedAt: new Date(now).toISOString(),
+        },
+        { merge: true }
+      )
         .then(() => {})
         .catch(() => {});
     };
