@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Play, Pause, RotateCcw, SkipForward, Timer, BarChart3, Settings as SettingsIcon, Zap, Minus, Plus, Check, Trash2, ListChecks } from "lucide-react";
-import { supabase } from "./lib/supabaseClient";
+import { db, doc, getDoc, setDoc } from "./lib/firebaseClient";
 import { getDeviceId } from "./lib/deviceId";
 
 const DEFAULTS = { focusMin: 60, breakMin: 15, dailyGoalMin: 180 };
