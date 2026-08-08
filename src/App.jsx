@@ -208,8 +208,8 @@ export default function FocusFlow() {
         },
         { merge: true }
       )
-        .then(() => {})
-        .catch(() => {});
+        .then(() => { console.log("Firestore sync OK"); })
+        .catch(() => { console.error("Firestore sync FAILLED", err.code, err.message); alert("Sync error: " + err.message); });
     };
 
     const t = setTimeout(doSync, 500);
